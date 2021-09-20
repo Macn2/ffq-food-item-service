@@ -13,10 +13,11 @@ public class NutrientRecommendation implements Serializable {
 
 	@JsonProperty("questionnaireId")
 	private String questionnaireId; 
-	@JsonProperty("patientName")
-	String patientName;
+	
 	@JsonProperty("patientAge")
 	int patientAgeInMonths;
+	@JsonProperty("gender")
+	String gender;
 	List <Recommendation> recommendationsList;
 	
 	public NutrientRecommendation() {
@@ -31,12 +32,12 @@ public class NutrientRecommendation implements Serializable {
 		this.questionnaireId = questionnaireId;
 	}
 
-	public String getPatientName() {
-		return patientName;
+	public String getGender() {
+		return gender;
 	}
 
-	public void setPatientName(String patientName) {
-		this.patientName = patientName;
+	public void setGender(String gender) {
+		this.gender = gender;
 	}
 
 	public int getPatientAgeInMonths() {

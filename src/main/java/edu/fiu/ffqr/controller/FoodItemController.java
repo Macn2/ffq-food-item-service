@@ -30,9 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.time.LocalDate; 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class FoodItemController {
   
   @Autowired
@@ -159,13 +160,31 @@ public class FoodItemController {
 	  }
 	  
 	  
-	  fi = new FoodItem(newItem.getName(), newItem.getServingsList(), newItem.getFoodTypes(), newItem.getAdditionalSugar(), newItem.isPrimary(), newItem.getPortionSize());
-	  foodItemService.create(fi);  
+	  fi = new FoodItem(newItem.getName(), newItem.getServingsList(), newItem.getFoodTypes(), newItem.getAdditionalSugar(), newItem.isPrimary(), newItem.getPortionSize(), newItem.getItemPosition());
+	  foodItemService.create(fi);
 	
 	  
 	  return fi;
   }
-  
+
+	@PutMapping("/update/{id}")
+	public FoodItem updateItemPosition(@PathVariable ObjectId id, @RequestBody FoodItem position) throws JsonProcessingException {
+
+		FoodItem foodItem = foodItemService.getFoodItemBy_id(id);
+
+		if (null == foodItem) {
+			throw new IllegalArgumentException("The food item id does not exist");
+		}
+
+
+		foodItem.setItemPosition(position.getItemPosition());
+
+
+		foodItemService.update(foodItem);
+
+		return foodItem;
+	}
+
   @PostMapping("/createMany")
   public List<FoodItem> create(@RequestBody ArrayList<FoodItem> data) {
 	  for (FoodItem newItem: data) {
@@ -256,16 +275,23 @@ public class FoodItemController {
   /*
    * Modified by Dariana Gonzalez (09/2019) to receive questionnaireId as parameter and save the results in the DB
    */
-  @PostMapping("/calculate/{questionnaireId}/{ageInMonths}/{userID}") 
+  @PostMapping("/calculate/{questionnaireId}/{ageInMonths}/{userType}/{userID}/{gender}/{patientName}")
   public Result calculateTotals(@PathVariable("questionnaireId") String questionnaireId, 
 								@PathVariable("ageInMonths") int ageInMonths, 
 								@PathVariable("userID") String userID, 
-								@RequestBody ArrayList<FoodItemInput> userChoices) {
-	  
-	  Result result = FFQCalculator.calculateTotals(questionnaireId, userID, ageInMonths, userChoices, foodTypeService);
+                                @PathVariable("userType") String userType,
+								@RequestBody ArrayList<FoodItemInput> userChoices,
+								@PathVariable("gender") String gender,
+								@PathVariable("patientName") String patientName) {
+
+									
+	  LocalDate locDate = java.time.LocalDate.now();
+	  String date = locDate.toString();
+	  Result result = FFQCalculator.calculateTotals(questionnaireId, userID, userType, date, ageInMonths, userChoices, foodTypeService, gender, patientName);
 	  resultsService.create(result);
 	  
 	  return result;
   }
-  
+
+
 }
